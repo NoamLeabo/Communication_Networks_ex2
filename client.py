@@ -7,13 +7,13 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('127.0.0.1', 12345))
 
 # we send teh word hello
-s.send(b'hello')
+s.send(b'GET result1.html HTTP/1.1\nrest of things\n')
 
 # we wait to receive the data coming from the server
-data = s.recv(100)
+data = s.recv(1024)
 
 # we print what we got from the server
-print("Server sent: ", data)
+print(data.decode())
 
 # we close the server
 s.close()
