@@ -5,7 +5,7 @@ import os
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # we bind the socket woth a specific port of '12345'
-server.bind(('', 8080))
+server.bind(('', 8888))
 
 # we set the server to listen to at most 5 connections
 server.listen(5)
@@ -31,7 +31,7 @@ while True:
         # if the buffer is empty we try to do recv from the socket
         if len(buffer) == 0:
             # we try for no more then 1 sec
-            client_socket.settimeout(1)
+            client_socket.settimeout(100)
             try:
                 # append data from the socket to the buffer
                 buffer = client_socket.recv(1024).decode()
@@ -45,7 +45,7 @@ while True:
         # as long as we didn't reach to the end of the request from the client
         while '\r\n\r\n' not in buffer:
             # once again we try to append more data from the socket to the buffer
-            client_socket.settimeout(1)
+            client_socket.settimeout(100)
             try:
                 buffer += client_socket.recv(1024).decode()
             # if the time has passed and we could't read we close the socket and move on to the next_client
@@ -64,7 +64,7 @@ while True:
         buffer = buffer[buffer.find('\r\n\r\n')+4:]
 
         # we print what we got from the client
-        print('Received: ', data)
+        print('Received: ', data) # TODO - check format of HEMI
 
         # the first line of the data
         first_ln = data.split('\n')[0]
@@ -117,9 +117,7 @@ while True:
                       f'Connection: {connection_status}\n' \
                       f'Content-length: {length}\n\n' 
                 # send the first part of the res back
-                client_socket.send(res.encode())
-                # and right after we send the content of the img (because we don't wanna encode the 'content')
-                client_socket.send(content)
+                client_socket.send(res.encode() + content) 
                 # if the status is 'close' we close the socket and move on to the next_client
                 if connection_status == "close":
                     client_socket.close()
