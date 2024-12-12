@@ -13,7 +13,16 @@ while True:
     s.send(formatted_req.encode())
 
     # we wait to receive the data coming from the server
-    data = s.recv(1000000)
+    data = s.recv(1024)
+    t = data[:16]
+    if data[:15] == b'HTTP/1.1 200 OK':
+        while b'Content-length: ' not in data:
+            data += s.recv(1024)
+        length_to_get = next(line for line in data.split(
+            b'\n') if line.startswith(b'Content-length'))
+        res = length_to_get.split(b' ')[1]
+        num = int(res.decode())
+        data += s.recv(num)
     name_of_new_file = req.split('/')[-1]
     _, _, data = data.partition(b'\n\n')
     with open(name_of_new_file, 'wb') as file:
