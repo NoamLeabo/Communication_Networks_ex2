@@ -5,7 +5,7 @@ import os
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # we bind the socket woth a specific port of '12345'
-server.bind(('', 7788))
+server.bind(('', 8888))
 
 # we set the server to listen to at most 5 connections
 server.listen(5)
@@ -28,7 +28,7 @@ while True:
         # if the buffer is empty we try to do recv from the socket
         if len(buffer) == 0:
             # we try for no more then 1 sec
-            client_socket.settimeout(1)
+            client_socket.settimeout(100)
             try:
                 # append data from the socket to the buffer
                 buffer = client_socket.recv(1024).decode()
@@ -44,10 +44,11 @@ while True:
         # as long as we didn't reach to the end of the request from the client
         while '\r\n\r\n' not in buffer:
             # once again we try to append more data from the socket to the buffer
-            client_socket.settimeout(1)
+            client_socket.settimeout(100)
             try:
-                buffer += client_socket.recv(1024).decode()
-                if not len(buffer):
+                try_to_get_more = client_socket.recv(1024).decode()
+                buffer += try_to_get_more
+                if not len(try_to_get_more):
                     client_socket.close()
                     break
             # if the time has passed and we could't read we close the socket and move on to the next_client
@@ -75,6 +76,7 @@ while True:
         # we extract from the header the status of the connection
         connection_status = next(line for line in data.split(
             '\r\n') if line.startswith('Connection'))
+        # we extract the actual value of 'Connection' field
         stat = connection_status.split(' ')[-1]
 
         # we check if we need to return the index.html
@@ -146,6 +148,7 @@ while True:
             client_socket.send(res.encode())
             client_socket.close()
             next_client = True
+            break
 
         # this is a generic request
         else:
@@ -178,4 +181,4 @@ while True:
                 break
 
     # we print a 'disconnected' msg
-    print('Client disconnected')
+    print('Client disconnected') # TODO: we need to remove it
