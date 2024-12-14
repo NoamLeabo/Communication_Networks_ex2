@@ -83,7 +83,7 @@ while True:
         stat = connection_status.split(' ')[-1]
 
         # we wanna check if the path is valid and is a file before trying to open it
-        if not os.path.isfile(f'files{req}'):
+        if not os.path.isfile(f'files{req}') and os.path.normpath(req) != os.path.normpath('/redirect'):
             res = 'HTTP/1.1 404 Not Found\r\n' \
                 'Connection: close\r\n\r\n'
             client_socket.send(res.encode())
@@ -92,14 +92,14 @@ while True:
             break
 
         # we wanna do a conversion to the path to make it adaptive to all os
-        req = os.path.normpath(req)
+        req = os.path.normpath(f'files{req}')
         
         # we check if we need to return the index.html
-        if req == '/':
+        if req == os.path.normpath('files/'):
             # we try to construct the res to the client
             try:
                 # we read the required file
-                content = open(f'files/index.html', 'r').read()
+                content = open(os.path.normpath('files/index.html'), 'r').read()
                 # save its length
                 length = content.encode().__len__()
                 # formatting the res
@@ -125,11 +125,11 @@ while True:
                 break
 
         # we check if we need to return a jpg or ico file
-        elif req.endswith(".ico") or req.endswith("jpg"):
+        elif req.endswith(".ico") or req.endswith(".jpg"):
             # we try to construct the res to the client
             try:
                 # we read the required file as binary format
-                content = open(f'files{req}', 'rb').read()
+                content = open(req, 'rb').read()
                 # save its length
                 length = content.__len__()
                 # formatting the res
@@ -154,7 +154,7 @@ while True:
                 break
         
         # we check if we need to return /redirect
-        elif req == '/redirect':
+        elif req == os.path.normpath('files/redirect'):
             # formatting the res
             res = 'HTTP/1.1 301 Moved Permanently\r\n' \
                   'Connection: close\r\n' \
@@ -170,7 +170,7 @@ while True:
             # we try to construct the res to the client
             try:
                 # we read the required file
-                content = open(f'files{req}', 'r').read()
+                content = open(req, 'r').read()
                 # save its length
                 length = content.encode().__len__()
                 # formatting the res
