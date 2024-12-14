@@ -52,7 +52,7 @@ while True:
             # we convert the value of number_in_bytes to int after decoding it from byte type
             length_of_content = int(number_in_bytes.decode())
             # if the content we need to get is longer than what we took so far
-            if length_of_content > length_of_content_received:
+            while length_of_content > length_of_content_received:
                 # we try to bring the delta (plus 10 for backup)
                 try:
                     more_data = s.recv(length_of_content - length_of_content_received + 10)
@@ -60,6 +60,7 @@ while True:
                     # if we acctually got something we append it
                     if more_data:
                         data += more_data
+                        length_of_content_received += len(more_data)
                 
             # we extract the full content from the final constructed msg
             _, _, content = data.partition(b'\r\n\r\n')
