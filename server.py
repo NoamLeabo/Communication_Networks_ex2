@@ -31,7 +31,7 @@ while True:
         # if the buffer is empty we try to do recv from the socket
         if len(buffer) == 0:
             # we try for no more then 1 sec
-            client_socket.settimeout(100)
+            client_socket.settimeout(1)
             try:
                 # append data from the socket to the buffer
                 buffer = client_socket.recv(1024).decode()
@@ -47,7 +47,7 @@ while True:
         # as long as we didn't reach to the end of the request from the client
         while '\r\n\r\n' not in buffer:
             # once again we try to append more data from the socket to the buffer
-            client_socket.settimeout(100)
+            client_socket.settimeout(1)
             try:
                 try_to_get_more = client_socket.recv(1024).decode()
                 buffer += try_to_get_more

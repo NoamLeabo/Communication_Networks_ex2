@@ -7,18 +7,18 @@ server_Ip = sys.argv[1]
 # we get the server's ip as an arg
 server_Port = int(sys.argv[2])
 
-# we create the socket
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((server_Ip, server_Port))
-
 # the endless loop of the server
 while True:
     req = input()
     # we create a connection with the TCP server
     # we send teh word hello
-    formatted_req = f'GET {req} HTTP/1.1\r\nConnection: keep-alive\r\n\r\n'
+    formatted_req = f'GET {req} HTTP/1.1\r\nConnection: close\r\n\r\n'
     # we extract the name of the file
     name_of_new_file = req.split('/')[-1]
+
+    # we create the socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((server_Ip, server_Port))
     s.send(formatted_req.encode())
 
     while True:
@@ -68,11 +68,15 @@ while True:
             if req != '/':
                 with open(name_of_new_file, 'wb') as file:
                     file.write(content)
+                    # we close the socket since it has been closed by the server
+                    s.close()
                     break
             # if we got '/' we simply name the file as 'index.html'
             else:
                 with open("index.html", 'wb') as file:
                     file.write(content)
+                    # we close the socket since it has been closed by the server
+                    s.close()
                     break
 
         elif res_status == b'HTTP/1.1 301':
@@ -86,7 +90,7 @@ while True:
             # we remove the '\r' suffix and docode it back to string
             new_location_separated = new_location.split(b'\r')[0].decode()
             # we format the new req with the new location
-            formatted_req = f'GET {new_location_separated} HTTP/1.1\r\nConnection: keep-alive\r\n\r\n'
+            formatted_req = f'GET {new_location_separated} HTTP/1.1\r\nConnection: close\r\n\r\n'
             # we extract the name of the new location file
             name_of_new_file = new_location_separated.split('/')[-1]
             # we close the current socket
@@ -100,9 +104,6 @@ while True:
         elif res_status == b'HTTP/1.1 404':
             # since the socket was closed we open a new one
             s.close()
-            # then we create a new socket and reconnect to the server since the older one was closed by the server
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((server_Ip, server_Port))
             break
         
 # we close the server (we never really get to there)
