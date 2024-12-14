@@ -82,6 +82,18 @@ while True:
         # we extract the actual value of 'Connection' field
         stat = connection_status.split(' ')[-1]
 
+        # we wanna check if the path is valid and is a file before trying to open it
+        if not os.path.isfile(f'files{req}'):
+            res = 'HTTP/1.1 404 Not Found\r\n' \
+                'Connection: close\r\n\r\n'
+            client_socket.send(res.encode())
+            client_socket.close()
+            next_client = True
+            break
+
+        # we wanna do a conversion to the path to make it adaptive to all os
+        req = os.path.normpath(req)
+        
         # we check if we need to return the index.html
         if req == '/':
             # we try to construct the res to the client
@@ -184,4 +196,4 @@ while True:
                 break
 
     # we print a 'disconnected' msg
-    # print('Client disconnected') # TODO: we need to remove it
+    # print('Client disconnected')
