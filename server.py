@@ -84,6 +84,7 @@ while True:
 
         # we wanna check if the path is valid and is a file before trying to open it
         if not os.path.isfile(f'files{req}') and os.path.normpath(req) != os.path.normpath('/redirect'):
+            # we return 404 file was not found, close the socket and move on to the next_client
             res = 'HTTP/1.1 404 Not Found\r\n' \
                 'Connection: close\r\n\r\n'
             client_socket.send(res.encode())
