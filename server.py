@@ -37,7 +37,7 @@ while True:
                     break
             # if the time has passed and we could't read we close the socket and move on to the next_client
             except socket.timeout:
-                print('Socket timeout, closing connection')
+                # print('Socket timeout, closing connection')
                 client_socket.close()
                 break
         
@@ -53,7 +53,7 @@ while True:
                     break
             # if the time has passed and we could't read we close the socket and move on to the next_client
             except socket.timeout:
-                print('Socket timeout, closing connection')
+                # print('Socket timeout, closing connection')
                 client_socket.close()
                 next_client = True
                 break
@@ -67,7 +67,7 @@ while True:
         buffer = buffer[buffer.find('\r\n\r\n') + 4:]
 
         # we print what we got from the client
-        print(data) # TODO - check format of HEMI
+        print(data)
 
         # the first line of the data
         first_ln = data.split('\r\n')[0]
@@ -181,4 +181,4 @@ while True:
                 break
 
     # we print a 'disconnected' msg
-    print('Client disconnected') # TODO: we need to remove it
+    # print('Client disconnected') # TODO: we need to remove it

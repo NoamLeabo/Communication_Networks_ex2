@@ -24,11 +24,15 @@ while True:
             finally:
                 pass
         
+        # we extract the first line from the response 
+        first_ln = data.split(b'\r\n')[0].decode()
+        # we print it as required
+        print(first_ln)
         # we wanna check what type of msg we got back
-        first_ln = data[:12]
+        res_status = data[:12]
 
         # if this is an 'ok 200' we keep going and create the file
-        if first_ln == b'HTTP/1.1 200':
+        if res_status == b'HTTP/1.1 200':
             # we wanna know how much of the content itself we managed to receive
             header, _, content_received = data.partition(b'\r\n\r\n')
             # the length of the content we managed to bring 
@@ -63,7 +67,7 @@ while True:
                     file.write(content)
                     break
 
-        elif first_ln == b'HTTP/1.1 301':
+        elif res_status == b'HTTP/1.1 301':
             # we wanna know how much of the content itself we managed to receive
             header, _, content_received = data.partition(b'\r\n\r\n')
             # we seek for the new location
@@ -85,7 +89,7 @@ while True:
             # we send a new request to the new asked location
             s.send(formatted_req.encode())
 
-        elif first_ln == b'HTTP/1.1 404':
+        elif res_status == b'HTTP/1.1 404':
             # since the socket was closed we open a new one
             s.close()
             # then we create a new socket and reconnect to the server since the older one was closed by the server
