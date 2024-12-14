@@ -1,11 +1,14 @@
 import socket
 import os
+import sys
 
+# we get the port where the server runs as an arg
+Port = int(sys.argv[1])
 # we create the socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # we bind the socket woth a specific port of '12345'
-server.bind(('', 8888))
+server.bind(('', Port))
 
 # we set the server to listen to at most 5 connections
 server.listen(5)

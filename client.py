@@ -1,8 +1,15 @@
 import socket
+import sys
+
+# we get the server's port as an arg
+server_Ip = sys.argv[1]
+
+# we get the server's ip as an arg
+server_Port = int(sys.argv[2])
 
 # we create the socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 8888))
+s.connect((server_Ip, server_Port))
 
 # the endless loop of the server
 while True:
@@ -85,7 +92,7 @@ while True:
             s.close()
             # then we create a new socket and reconnect to the server since the older one was closed by the server
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('127.0.0.1', 8888))
+            s.connect((server_Ip, server_Port))
             # we send a new request to the new asked location
             s.send(formatted_req.encode())
 
@@ -94,7 +101,7 @@ while True:
             s.close()
             # then we create a new socket and reconnect to the server since the older one was closed by the server
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect(('127.0.0.1', 8888))
+            s.connect((server_Ip, server_Port))
             break
         
 # we close the server (we never really get to there)
