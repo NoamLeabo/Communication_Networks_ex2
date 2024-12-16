@@ -106,7 +106,7 @@ while True:
                 # formatting the res
                 res = f'HTTP/1.1 200 OK\r\n' \
                     f'Connection: {stat}\r\n' \
-                    f'Content-length: {length}\r\n\r\n' \
+                    f'Content-Length: {length}\r\n\r\n' \
                     f'{content}'
                 # send the res back
                 client_socket.send(res.encode())
@@ -136,7 +136,7 @@ while True:
                 # formatting the res
                 res = f'HTTP/1.1 200 OK\r\n' \
                     f'Connection: {stat}\r\n' \
-                      f'Content-length: {length}\r\n\r\n' 
+                      f'Content-Length: {length}\r\n\r\n' 
                 # send the first part of the res back
                 client_socket.send(res.encode() + content) 
                 # if the status is 'close' we close the socket and move on to the next_client
@@ -177,7 +177,7 @@ while True:
                 # formatting the res
                 res = f'HTTP/1.1 200 OK\r\n' \
                     f'Connection: {stat}\r\n' \
-                      f'Content-length: {length}\r\n\r\n' \
+                      f'Content-Length: {length}\r\n\r\n' \
                       f'{content}'
                 # send the res back
                 client_socket.send(res.encode())
