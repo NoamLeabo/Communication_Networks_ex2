@@ -52,7 +52,7 @@ while True:
                 try_to_get_more = client_socket.recv(1024).decode()
                 buffer += try_to_get_more
                 if not len(try_to_get_more):
-                    client_socket.close()
+                    client_socket.close()  # TODO: Check about - next_client = True
                     break
             # if the time has passed and we could't read we close the socket and move on to the next_client
             except socket.timeout:
