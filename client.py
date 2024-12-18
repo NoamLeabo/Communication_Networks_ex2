@@ -6,7 +6,7 @@ server_Ip = sys.argv[1]
 
 # we get the server's ip as an arg
 server_Port = int(sys.argv[2])
-
+open_new_socket = True
 # the endless loop of the server
 while True:
     req = input()
@@ -16,18 +16,24 @@ while True:
     # we extract the name of the file
     name_of_new_file = req.split('/')[-1]
 
-    # we create the socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((server_Ip, server_Port))
-    s.send(formatted_req.encode())
-
+    if open_new_socket:
+        # we create the socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # connect to server
+        s.connect((server_Ip, server_Port))
+        # send the msg
+        s.send(formatted_req.encode())
+    else: 
+        # send the msg with old existing socket
+        s.send(formatted_req.encode())
+    
     while True:
         # we wait to receive the data coming from the server
         data = s.recv(1024)
         # we wanna keep receiving bytes as long as we did not get the whole header which ends with '\r\n\r\n'
         while b'\r\n\r\n' not in data:
             try:
-                data = s.recv(1024)
+                data += s.recv(1024)
             finally:
                 pass
         
@@ -37,6 +43,10 @@ while True:
         print(first_ln)
         # we wanna check what type of msg we got back
         res_status = data[:12]
+        close_status_line = next(line for line in data.split(
+            b'\n') if line.startswith(b'Connection: '))
+        close_status = close_status_line.split(
+            b' ')[-1].decode().split('\r')[0]
 
         # if this is an 'ok 200' we keep going and create the file
         if res_status == b'HTTP/1.1 200':
@@ -46,7 +56,7 @@ while True:
             length_of_content_received = len(content_received)
             # the length of the entire content we should be taking
             length_to_get = next(line for line in data.split(
-                b'\n') if line.startswith(b'Content-length'))
+                b'\n') if line.startswith(b'Content-Length'))
             # we extract the number we should recv in byte type
             number_in_bytes = length_to_get.split(b' ')[1]
             # we convert the value of number_in_bytes to int after decoding it from byte type
@@ -68,15 +78,23 @@ while True:
             if req != '/':
                 with open(name_of_new_file, 'wb') as file:
                     file.write(content)
-                    # we close the socket since it has been closed by the server
-                    s.close()
+                    # we close the socket if it has been closed by the server
+                    if close_status == "close":
+                        s.close()
+                        open_new_socket = True   
+                    else:
+                        open_new_socket = False
                     break
             # if we got '/' we simply name the file as 'index.html'
             else:
                 with open("index.html", 'wb') as file:
                     file.write(content)
-                    # we close the socket since it has been closed by the server
-                    s.close()
+                    # we close the socket if it has been closed by the server
+                    if close_status == "close":
+                        s.close()
+                        open_new_socket = True
+                    else:
+                        open_new_socket = False
                     break
 
         elif res_status == b'HTTP/1.1 301':
@@ -102,7 +120,7 @@ while True:
             s.send(formatted_req.encode())
 
         elif res_status == b'HTTP/1.1 404':
-            # since the socket was closed we open a new one
+            # we close the socket if it has been closed by the server
             s.close()
             break
         
