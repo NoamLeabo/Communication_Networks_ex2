@@ -195,6 +195,3 @@ while True:
                 client_socket.close()
                 next_client = True
                 break
-
-    # we print a 'disconnected' msg
-    # print('Client disconnected')
