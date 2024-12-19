@@ -20,10 +20,10 @@ while True:
     # client_socket - the socket we are gonna communicate with from now on with the current client
     # client_address - the address of the client which we received a request from
     client_socket, client_address = server.accept()
-    
+
     # a bool whether we move in to the next client
     next_client = False
-    # we init a buffer to receive dynamic data from the client  
+    # we init a buffer to receive dynamic data from the client
     buffer = ''
 
     # we connect to a specific client_socket as long as this is not the turn of 'next_client' yet
@@ -43,7 +43,7 @@ while True:
                 # print('Socket timeout, closing connection')
                 client_socket.close()
                 break
-        
+
         # as long as we didn't reach to the end of the request from the client
         while '\r\n\r\n' not in buffer:
             # once again we try to append more data from the socket to the buffer
@@ -60,11 +60,11 @@ while True:
                 client_socket.close()
                 next_client = True
                 break
-        
+
         # we check if we should break
         if next_client:
             break
-        
+
         # we extract the data and save the rest as this is part of the next request
         data = buffer[:buffer.find('\r\n\r\n') + 4]
         buffer = buffer[buffer.find('\r\n\r\n') + 4:]
@@ -94,13 +94,14 @@ while True:
 
         # we wanna do a conversion to the path to make it adaptive to all os
         req = os.path.normpath(f'files{req}')
-        
+
         # we check if we need to return the index.html
         if req == os.path.normpath('files/'):
             # we try to construct the res to the client
             try:
                 # we read the required file
-                content = open(os.path.normpath('files/index.html'), 'r').read()
+                content = open(os.path.normpath(
+                    'files/index.html'), 'r').read()
                 # save its length
                 length = content.encode().__len__()
                 # formatting the res
@@ -109,8 +110,12 @@ while True:
                     f'Content-Length: {length}\r\n\r\n' \
                     f'{content}'
                 # send the res back
-                client_socket.send(res.encode())
-                # if the status is 'close' we close the socket and move on to the next_client 
+                num_of_bytes_sent = client_socket.send(res.encode())
+                num_of_bytes_needed = len(res.encode())
+                while num_of_bytes_sent < num_of_bytes_needed:
+                    num_of_bytes_sent += client_socket.send(
+                        res.encode()[num_of_bytes_sent:])
+                # if the status is 'close' we close the socket and move on to the next_client
                 if stat == "close":
                     client_socket.close()
                     next_client = True
@@ -136,9 +141,14 @@ while True:
                 # formatting the res
                 res = f'HTTP/1.1 200 OK\r\n' \
                     f'Connection: {stat}\r\n' \
-                      f'Content-Length: {length}\r\n\r\n' 
+                    f'Content-Length: {length}\r\n\r\n'
                 # send the first part of the res back
-                client_socket.send(res.encode() + content) 
+                to_be_sent = res.encode() + content
+                num_of_bytes_sent = client_socket.send(to_be_sent)
+                num_of_bytes_needed = len(to_be_sent)
+                while num_of_bytes_sent < num_of_bytes_needed:
+                    num_of_bytes_sent += client_socket.send(
+                        to_be_sent[num_of_bytes_sent:])
                 # if the status is 'close' we close the socket and move on to the next_client
                 if stat == "close":
                     client_socket.close()
@@ -153,7 +163,7 @@ while True:
                 client_socket.close()
                 next_client = True
                 break
-        
+
         # we check if we need to return /redirect
         elif req == os.path.normpath('files/redirect'):
             # formatting the res
@@ -161,7 +171,11 @@ while True:
                   'Connection: close\r\n' \
                   'Location: /result.html\r\n\r\n'
             # send the first part of the res back, close the socket and move on to the next_client
-            client_socket.send(res.encode())
+            num_of_bytes_sent = client_socket.send(res.encode())
+            num_of_bytes_needed = len(res.encode())
+            while num_of_bytes_sent < num_of_bytes_needed:
+                num_of_bytes_sent += client_socket.send(
+                    res.encode()[num_of_bytes_sent:])
             client_socket.close()
             next_client = True
             break
@@ -177,10 +191,14 @@ while True:
                 # formatting the res
                 res = f'HTTP/1.1 200 OK\r\n' \
                     f'Connection: {stat}\r\n' \
-                      f'Content-Length: {length}\r\n\r\n' \
-                      f'{content}'
+                    f'Content-Length: {length}\r\n\r\n' \
+                    f'{content}'
                 # send the res back
-                client_socket.send(res.encode())
+                num_of_bytes_sent = client_socket.send(res.encode())
+                num_of_bytes_needed = len(res.encode())
+                while num_of_bytes_sent < num_of_bytes_needed:
+                    num_of_bytes_sent += client_socket.send(
+                        res.encode()[num_of_bytes_sent:])
                 # if the status is 'close' we close the socket and move on to the next_client
                 if stat == "close":
                     client_socket.close()
