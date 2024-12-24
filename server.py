@@ -76,6 +76,9 @@ while True:
         first_ln = data.split('\r\n')[0]
         # we split it to 3 parts according to http protocol
         action, req, protocol = first_ln.split(' ')
+        # addind '/' if needed
+        if not req or os.path.normpath(req[0]) != os.path.normpath('/'):
+            req = '/' + req
         # we extract from the header the status of the connection
         connection_status = next(line for line in data.split(
             '\r\n') if line.startswith('Connection'))
