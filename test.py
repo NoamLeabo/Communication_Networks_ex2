@@ -34,6 +34,16 @@ def test_basic_connection():
     assert "200 OK" in response, "Failed Basic Connection Test"
     print("Passed\n")
 
+def test_Big_header():
+    """Test test_Big_header server connection and retrieval of index.html"""
+    print("Test 1.5: test Big header")
+    garbeg = 'a'*10000
+    header = f"GET / HTTP/1.1\r\nX: {garbeg}\r\nConnection: close\r\n\r\n"
+    response = send_request(
+        "127.0.0.1", 8888, header )
+    assert "200 OK" in response, "Failed Basic Connection Test"
+    print("Passed\n")
+
 
 def test_file_not_found():
     """Test server response for a non-existent file"""
@@ -182,6 +192,7 @@ def run_all_tests():
     """Run all tests sequentially"""
     print("Running Tests...\n")
     test_basic_connection()
+    test_Big_header()
     test_file_not_found()
     test_file_retrieval()
     test_redirect()
