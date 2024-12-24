@@ -75,7 +75,7 @@ while True:
             # we extract the full content from the final constructed msg
             _, _, content = data.partition(b'\r\n\r\n')
             # if thie is a regular file we create it by the given name and write the content into it
-            if req != '/':
+            if req != '/' and req != '':
                 with open(name_of_new_file, 'wb') as file:
                     file.write(content)
                     # we close the socket if it has been closed by the server
